@@ -23,11 +23,11 @@ app.add_middleware(
 )
 
 # Load model
-MODEL_PATH = "model/dr_model.keras"
+MODEL_PATH = "model/dr_model.keras,"
 model = None
 
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
     print("Model loaded successfully.")
 except Exception as e:
     print(f"Error loading model: {e}")
