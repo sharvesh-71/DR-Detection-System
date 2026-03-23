@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetic Retinopathy Detection</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #00e5ff;
+            --text-color: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-color: #333333;
+            --success-color: #00e676;
+            --warning-color: #ffea00;
+            --danger-color: #ff1744;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem 0;
+            text-align: center;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 90%;
+            margin: 3rem auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .upload-card {
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px dashed var(--border-color);
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .upload-btn {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 229, 255, 0.4);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .results-section {
+            display: none;
+            background-color: var(--surface-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .images-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .image-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .image-box img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .image-box span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .prediction-box {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .prediction-label {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .prediction-conf {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .label-none { color: var(--success-color); }
+        .label-review { color: var(--warning-color); }
+        .label-refer { color: var(--danger-color); }
+
+        #loading {
+            display: none;
+            text-align: center;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(0, 229, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .images-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Diabetic Retinopathy Analyzer</h1>
+    </header>
+
+    <div class="container">
+        <div class="upload-card">
+            <h2 style="margin-top: 0;">Upload Retinal Image</h2>
+            <p style="color: var(--text-secondary);">Select a fundus image (.jpg, .png) for AI analysis.</p>
+            <input type="file" id="fileInput" accept="image/*">
+            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">Select Image</button>
+            <div id="loading"><div class="spinner"></div>Analyzing...</div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="prediction-box">
+                <div class="prediction-label" id="predLabel">Result</div>
+                <div class="prediction-conf" id="predConf">Confidence: -</div>
+            </div>
+
+            <div class="images-container">
+                <div class="image-box">
+                    <img id="origImg" src="" alt="Original Image">
+                    <span>Original Image</span>
+                </div>
+                <div class="image-box">
+                    <img id="gradcamImg" src="" alt="Grad-CAM Hotspot">
+                    <span>Grad-CAM Hotspot</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const resultsSection = document.getElementById('resultsSection');
+        const loading = document.getElementById('loading');
+        
+        const origImg = document.getElementById('origImg');
+        const gradcamImg = document.getElementById('gradcamImg');
+        const predLabel = document.getElementById('predLabel');
+        const predConf = document.getElementById('predConf');
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Show preview
+            origImg.src = URL.createObjectURL(file);
+            resultsSection.style.display = 'none';
+            loading.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                // Load dynamically from .env
+                let apiUrl = 'http://localhost:8000';
+                try {
+                    const envResponse = await fetch('../.env');
+                    if (envResponse.ok) {
+                        const envText = await envResponse.text();
+                        envText.split('\n').forEach(line => {
+                            const [key, ...rest] = line.split('=');
+                            if (key && key.trim() === 'API_URL') {
+                                apiUrl = rest.join('=').trim().replace(/['"]/g, '');
+                            }
+                        });
+                    }
+                } catch (envErr) {
+                    console.warn('Could not load .env file, using default API URL.', envErr);
+                }
+
+                const response = await fetch(`${apiUrl}/predict`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Server returned an error');
+                }
+
+                const data = await response.json();
+                
+                loading.style.display = 'none';
+                resultsSection.style.display = 'block';
+
+                // Set Labels
+                predLabel.innerText = data.prediction_label;
+                predConf.innerText = `Confidence: ${(data.confidence_score * 100).toFixed(2)}%`;
+
+                // Set Colors
+                predLabel.className = 'prediction-label';
+                if (data.prediction_label === 'No DR') {
+                    predLabel.classList.add('label-none');
+                } else if (data.prediction_label === 'Doctor Review Required') {
+                    predLabel.classList.add('label-review');
+                } else {
+                    predLabel.classList.add('label-refer');
+                }
+
+                // Set GradCAM Image
+                if (data.gradcam_image_base64) {
+                    gradcamImg.src = `data:image/jpeg;base64,${data.gradcam_image_base64}`;
+                } else {
+                    gradcamImg.src = '';
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert('Analysis failed. Make sure the backend server is running and try again.');
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

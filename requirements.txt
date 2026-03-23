@@ -1,0 +1,10 @@
+tensorflow>=2.15.0
+fastapi>=0.109.0
+uvicorn>=0.27.0
+python-multipart>=0.0.9
+numpy>=1.26.0
+opencv-python>=4.9.0
+medmnist>=3.0.1
+Pillow>=10.2.0
+requests>=2.31.0
+python-dotenv>=1.0.0
