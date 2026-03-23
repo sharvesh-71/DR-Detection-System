@@ -214,87 +214,82 @@
         </div>
     </div>
 
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const resultsSection = document.getElementById('resultsSection');
-        const loading = document.getElementById('loading');
-        
-        const origImg = document.getElementById('origImg');
-        const gradcamImg = document.getElementById('gradcamImg');
-        const predLabel = document.getElementById('predLabel');
-        const predConf = document.getElementById('predConf');
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const resultsSection = document.getElementById('resultsSection');
+    const loading = document.getElementById('loading');
+    
+    const origImg = document.getElementById('origImg');
+    const gradcamImg = document.getElementById('gradcamImg');
+    const predLabel = document.getElementById('predLabel');
+    const predConf = document.getElementById('predConf');
 
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-            // Show preview
-            origImg.src = URL.createObjectURL(file);
-            resultsSection.style.display = 'none';
-            loading.style.display = 'block';
+        // Show preview
+        origImg.src = URL.createObjectURL(file);
+        resultsSection.style.display = 'none';
+        loading.style.display = 'block';
 
-            const formData = new FormData();
-            formData.append('file', file);
+        const formData = new FormData();
+        formData.append('file', file);
 
-            try {
-                // Load dynamically from .env
-               let apiUrl = window.__API_URL__ || 'http://localhost:8000';
-                try {
-                    const envResponse = await fetch('../.env');
-                    if (envResponse.ok) {
-                        const envText = await envResponse.text();
-                        envText.split('\n').forEach(line => {
-                            const [key, ...rest] = line.split('=');
-                            if (key && key.trim() === 'API_URL') {
-                                apiUrl = rest.join('=').trim().replace(/['"]/g, '');
-                            }
-                        });
-                    }
-                } catch (envErr) {
-                    console.warn('Could not load .env file, using default API URL.', envErr);
-                }
+        try {
 
-                const response = await fetch(`${apiUrl}/predict`, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    throw new Error('Server returned an error');
-                }
-
-                const data = await response.json();
-                
-                loading.style.display = 'none';
-                resultsSection.style.display = 'block';
-
-                // Set Labels
-                predLabel.innerText = data.prediction_label;
-                predConf.innerText = `Confidence: ${(data.confidence_score * 100).toFixed(2)}%`;
-
-                // Set Colors
-                predLabel.className = 'prediction-label';
-                if (data.prediction_label === 'No DR') {
-                    predLabel.classList.add('label-none');
-                } else if (data.prediction_label === 'Doctor Review Required') {
-                    predLabel.classList.add('label-review');
-                } else {
-                    predLabel.classList.add('label-refer');
-                }
-
-                // Set GradCAM Image
-                if (data.gradcam_image_base64) {
-                    gradcamImg.src = `data:image/jpeg;base64,${data.gradcam_image_base64}`;
-                } else {
-                    gradcamImg.src = '';
-                }
-
-            } catch (err) {
-                console.error(err);
-                alert('Analysis failed. Make sure the backend server is running and try again.');
-                loading.style.display = 'none';
+            // Automatically choose correct API
+            let apiUrl;
+            if (window.location.hostname === "localhost") {
+                apiUrl = "http://localhost:8000";
+            } else {
+                apiUrl = "https://dr-detection-system.onrender.com";
             }
-        });
-    </script>
+
+            const response = await fetch(`${apiUrl}/predict`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Server returned an error');
+            }
+
+            const data = await response.json();
+            
+            loading.style.display = 'none';
+            resultsSection.style.display = 'block';
+
+            // Prediction label
+            predLabel.innerText = data.prediction_label;
+            predConf.innerText = `Confidence: ${(data.confidence_score * 100).toFixed(2)}%`;
+
+            // Reset classes
+            predLabel.className = 'prediction-label';
+
+            if (data.prediction_label === 'No DR') {
+                predLabel.classList.add('label-none');
+            } 
+            else if (data.prediction_label === 'Doctor Review Required') {
+                predLabel.classList.add('label-review');
+            } 
+            else {
+                predLabel.classList.add('label-refer');
+            }
+
+            // GradCAM image
+            if (data.gradcam_image_base64) {
+                gradcamImg.src = `data:image/jpeg;base64,${data.gradcam_image_base64}`;
+            } else {
+                gradcamImg.src = '';
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert('Analysis failed. Backend may not be running yet.');
+            loading.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
