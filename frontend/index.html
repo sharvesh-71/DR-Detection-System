@@ -238,7 +238,7 @@
 
             try {
                 // Load dynamically from .env
-                let apiUrl = 'http://localhost:8000';
+               let apiUrl = window.__API_URL__ || 'http://localhost:8000';
                 try {
                     const envResponse = await fetch('../.env');
                     if (envResponse.ok) {
