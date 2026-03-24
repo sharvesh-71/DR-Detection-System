@@ -70,6 +70,10 @@ def overlay_gradcam(img_bgr, heatmap, alpha=0.4):
     superimposed_img = cv2.addWeighted(img_bgr, 1-alpha, jet_heatmap, alpha, 0)
     return superimposed_img
 
+@app.get("/")
+def home():
+    return {"status": "API is running"}
+
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     if model is None:
