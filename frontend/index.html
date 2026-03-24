@@ -261,26 +261,28 @@
             resultsSection.style.display = 'block';
 
             // Prediction label
-            const label = data.prediction_label;
-            const confidence = data.confidence_score;
+            predLabel.innerText = data.prediction_label;
+            predConf.innerText = `Confidence: ${(data.confidence_score * 100).toFixed(2)}%`;
 
-            predLabel.innerText = label;
-            predConf.innerText = `Confidence: ${(confidence * 100).toFixed(2)}%`;
-
+            // Reset classes
             predLabel.className = 'prediction-label';
 
-            if (label === 'No DR') {
+            if (data.prediction_label === 'No DR') {
                 predLabel.classList.add('label-none');
             } 
-            else if (label === 'Doctor Review Required') {
+            else if (data.prediction_label === 'Doctor Review Required') {
                 predLabel.classList.add('label-review');
             } 
-            else if (label === 'Referable DR') {
+            else {
                 predLabel.classList.add('label-refer');
             }
 
             // GradCAM image
-            gradcamImg.src = `data:image/jpeg;base64,${data.gradcam_image_base64}`;
+            if (data.gradcam_image_base64) {
+                gradcamImg.src = `data:image/jpeg;base64,${data.gradcam_image_base64}`;
+            } else {
+                gradcamImg.src = '';
+            }
 
         } catch (err) {
             console.error(err);

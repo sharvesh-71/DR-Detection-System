@@ -27,7 +27,11 @@ MODEL_PATH = "model/dr_model.keras"
 model = None
 
 try:
-    model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+    model = tf.keras.models.load_model(
+        MODEL_PATH,
+        compile=False,
+        safe_mode=False
+    )
     print("Model loaded successfully.")
 except Exception as e:
     print(f"Error loading model: {e}")
