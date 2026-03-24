@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # Load model
-MODEL_PATH = "model/dr_model.keras,"
+MODEL_PATH = "model/dr_model.keras"
 model = None
 
 try:
