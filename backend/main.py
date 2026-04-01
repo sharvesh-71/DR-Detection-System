@@ -11,13 +11,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://dr-detection-system-65zc.vercel.app/")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://dr-detection-system-vs8c.vercel.app")
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL], # Allow frontend URL explicitly, and keep * for fallback or just the frontend URL depending on strictness. The user wants it to reflect the variable. Let's use [FRONTEND_URL] or ["*"] 
+    allow_origins=[
+        "https://dr-detection-system-vs8c.vercel.app",
+        "http://localhost:3000",
+        "http://127.0.0.1:5500"
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
