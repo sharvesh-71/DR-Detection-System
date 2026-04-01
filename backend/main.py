@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://dr-detection-system-vs8c.vercel.app")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://dr-detection-system-65zc.vercel.app/")
 
 app = FastAPI()
 
